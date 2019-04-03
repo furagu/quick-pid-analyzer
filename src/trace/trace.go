@@ -3,14 +3,15 @@ package trace
 import (
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/furagu/quick-pid-analyzer/src/bblog"
+	"github.com/furagu/quick-pid-analyzer/src/utils"
 )
 
 type Trace struct {
 	Name  string
 	PTerm float64
+	Len   int
 
 	Time     []float64
 	Throttle []float64
@@ -19,9 +20,9 @@ type Trace struct {
 }
 
 func TracesFromLogSession(s *bblog.Session) (*Trace, *Trace, *Trace, error) {
-	roll := &Trace{Name: "Roll", PTerm: float64(s.Header.RollP)}
-	pitch := &Trace{Name: "Pitch", PTerm: float64(s.Header.PitchP)}
-	yaw := &Trace{Name: "Yaw", PTerm: float64(s.Header.YawP)}
+	roll := &Trace{Name: "Roll", PTerm: float64(s.Header.RollP), Len: len(s.Values)}
+	pitch := &Trace{Name: "Pitch", PTerm: float64(s.Header.PitchP), Len: len(s.Values)}
+	yaw := &Trace{Name: "Yaw", PTerm: float64(s.Header.YawP), Len: len(s.Values)}
 
 	dataPointsTotal := len(s.Values)
 	for _, t := range []*Trace{roll, pitch, yaw} {
@@ -67,6 +68,7 @@ func TracesFromLogSession(s *bblog.Session) (*Trace, *Trace, *Trace, error) {
 		if err != nil {
 			return nil, nil, nil, err
 		}
+		throttle = ((throttle - 1000.) / (float64(s.Header.MaxThrottle) - 1000.)) * 100.
 		roll.Throttle[i] = throttle
 		pitch.Throttle[i] = throttle
 		yaw.Throttle[i] = throttle
@@ -113,31 +115,8 @@ func TracesFromLogSession(s *bblog.Session) (*Trace, *Trace, *Trace, error) {
 
 func (t *Trace) Print() {
 	fmt.Printf("Trace: %s\nPTerm: %f\n", t.Name, t.PTerm)
-	fmt.Printf("Time: [%s]\n", floatsToString(t.Time))
-	fmt.Printf("Throttle: [%s]\n", floatsToString(t.Throttle))
-	fmt.Printf("Gyro: [%s]\n", floatsToString(t.Gyro))
-	fmt.Printf("P: [%s]\n", floatsToString(t.P))
-}
-
-const FloatsLimit = 6
-const FloatsDelimiter = ", "
-
-func floatsToString(f []float64) string {
-	if len(f) < FloatsLimit {
-		return strings.Join(floatsToStringList(f), FloatsDelimiter)
-	} else {
-		return fmt.Sprintf(
-			"%s ... %s",
-			strings.Join(floatsToStringList(f[:FloatsLimit/2]), FloatsDelimiter),
-			strings.Join(floatsToStringList(f[len(f)-FloatsLimit/2:]), FloatsDelimiter),
-		)
-	}
-}
-
-func floatsToStringList(f []float64) []string {
-	s := make([]string, len(f), len(f))
-	for i, v := range f {
-		s[i] = fmt.Sprintf("%f", v)
-	}
-	return s
+	fmt.Printf("Time: %s\n", utils.FloatsToString(t.Time))
+	fmt.Printf("Throttle: %s\n", utils.FloatsToString(t.Throttle))
+	fmt.Printf("Gyro: %s\n", utils.FloatsToString(t.Gyro))
+	fmt.Printf("P: %s\n", utils.FloatsToString(t.P))
 }
