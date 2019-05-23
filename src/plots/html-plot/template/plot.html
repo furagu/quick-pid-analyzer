@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Flight Log</title>
+    <style>
+        h1 {
+            margin: 10px 0 0 20px;
+        }
+
+        .container {
+            margin: 0;
+            padding: 10px;
+        }
+
+        .charts {
+            list-style: none;
+        }
+
+        .chart {
+            float: left;
+            width: {{.ChartWidthPercents}}%;
+        }
+
+        .chart svg {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+<h1>Flight Log</h1>
+
+<div class="container">
+    <ul class="charts">
+        {{range .Charts}}
+            <li class="chart">{{.}}</li>
+        {{end}}
+    </ul>
+</div>
+
+</body>
+</html>
