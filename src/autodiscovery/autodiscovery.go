@@ -18,10 +18,11 @@ func start(channel chan string) {
 	for {
 		files, err := scanner.GetNewFiles()
 		if err != nil {
-			panic(err)
-		}
-		for _, file := range *files {
-			channel <- file
+			log.Printf("Error while getting new files: %s", err.Error())
+		} else {
+		  for _, file := range *files {
+			  channel <- file
+		  }
 		}
 		time.Sleep(3 * time.Second)
 	}

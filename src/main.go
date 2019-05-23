@@ -38,10 +38,10 @@ func readFile(path string, flightLog *blackbox.FlightLogReader) (dataPoints []Da
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 	logFile, err := os.Open(path)
+	defer logFile.Close()
 	if err != nil {
 		return
 	}
-	defer logFile.Close()
 	frameChan, err := flightLog.LoadFile(logFile, ctx)
 	if err != nil {
 		return

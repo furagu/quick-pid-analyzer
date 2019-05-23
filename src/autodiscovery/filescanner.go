@@ -3,6 +3,7 @@ package autodiscovery
 import(
 	"time"
 	"os"
+	"log"
 	"path/filepath"
 	"strings"
 )
@@ -18,21 +19,14 @@ func newFileScaner(root string) *FileScaner {
 	return &FileScaner{files: make(map[string]int64), root: root}
 }
 
-func (s *FileScaner) GetNewFiles() (paths *[]string, err error) {
-	if _, err := os.Stat(s.root); err == nil {
-		paths = s.checkForFiles()
-	} else if os.IsNotExist(err) {
-		time.Sleep(2 * time.Second)
-	}
-	return
-}
-
-func (s *FileScaner) checkForFiles() (newFiles *[]string) {
+func (s *FileScaner) GetNewFiles() (newFiles *[]string, err error) {
+	log.Println("Checking for new files")
 	newFiles = &[]string{}
-	err := filepath.Walk(s.root, visit(newFiles, &s.files))
+	err = filepath.Walk(s.root, visit(newFiles, &s.files))
 	if err != nil {
-		panic(err)
+		return
 	}
+	log.Printf("Found %d new files", len(*newFiles))
 	return
 }
 
@@ -40,7 +34,7 @@ func visit(newFiles *[]string, files *map[string]int64) filepath.WalkFunc {
 	timestamp := time.Now().Unix()
 	return func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			panic(err)
+			return err
 		}
 		if strings.HasPrefix(filepath.Base(path), ".") || strings.ToLower(filepath.Ext(path)) != btlExt || info.IsDir() {
 			return nil
