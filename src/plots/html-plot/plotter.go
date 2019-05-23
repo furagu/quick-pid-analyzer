@@ -46,13 +46,14 @@ func (p *HtmlPlotter) AddChart(c plots.Chart) {
 // Plot generates HTML file with SVG charts and writes it to the target.
 func (p *HtmlPlotter) Plot(target io.Writer) error {
 	var charts []io.Reader
+
+	wg := &sync.WaitGroup{}
 	for _, chart := range p.charts {
 		buf := &bytes.Buffer{}
-		if err := p.plotChart(chart, buf); err != nil {
-			return err
-		}
 		charts = append(charts, buf)
+		p.plotChartAsync(chart, buf, wg)
 	}
+	wg.Wait()
 
 	cols := p.cfg.Cols
 	if cols == 0 {
@@ -68,4 +69,15 @@ func (p *HtmlPlotter) Plot(target io.Writer) error {
 func (p *HtmlPlotter) plotChart(chart plots.Chart, target io.Writer) error {
 	err := chart.Draw(target)
 	return errors.Wrapf(err, "could not draw chart '%s' on the plot", chart.Name())
+}
+
+func (p *HtmlPlotter) plotChartAsync(chart plots.Chart, target io.Writer, wg *sync.WaitGroup) {
+	wg.Add(1)
+	go func() {
+		err := p.plotChart(chart, target)
+		if err != nil {
+			panic(err)
+		}
+		wg.Done()
+	}()
 }

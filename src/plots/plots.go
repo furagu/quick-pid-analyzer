@@ -32,7 +32,7 @@ type Chart interface {
 type LineChart interface {
 	Chart
 	// AddLine adds a new line to the chart
-	AddLine(Line)
+	AddLine(*Line)
 }
 
 type Line struct {

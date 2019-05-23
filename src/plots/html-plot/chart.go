@@ -33,7 +33,7 @@ func (c *SvgChart) Name() string {
 }
 
 // AddLine add a new line to the chart
-func (c *SvgChart) AddLine(l plots.Line) {
+func (c *SvgChart) AddLine(l *plots.Line) {
 	line := chart.ContinuousSeries{
 		Name:            l.Name,
 		Style:           c.getLineStyle(len(c.graph.Series), l),
@@ -65,9 +65,9 @@ func (c *SvgChart) Draw(target io.Writer) error {
 	return c.graph.Render(chart.SVG, target)
 }
 
-// resolveLineStyle creates a style configs for the line based on the baseStyle
+// getLineStyle creates a style configs for the line based on the baseStyle
 // and the line's preferences
-func (c SvgChart) getLineStyle(lineIdx int, line plots.Line) chart.Style {
+func (c SvgChart) getLineStyle(lineIdx int, line *plots.Line) chart.Style {
 	style := c.baseLineStyle
 
 	color := plots.Color{0, 0, 0, 255}
