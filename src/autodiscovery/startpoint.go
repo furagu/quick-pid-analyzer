@@ -24,7 +24,10 @@ func detectStartpoint() (path string) {
 		if err != nil {
 			panic(err)
 		}
+		newMountPoints := make(map[string]bool)
 		for _, point := range points {
+			newMountPoints[point] = true
+
 			if _, ok := mountPoints[point]; !ok {
 				path = point
 				detected = true
@@ -35,6 +38,7 @@ func detectStartpoint() (path string) {
 			log.Println("")
 			break
 		}
+		mountPoints = newMountPoints
 	}
 	return
 }
