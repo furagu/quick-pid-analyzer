@@ -6,34 +6,35 @@ import(
 	"time"
 )
 
+type VolumeState struct {
+	dir string
+	isConnected bool
+	initialDetection bool
+	numNewFiles int
+	forceFilesStatus bool
+}
+
 func GetFileChannel() (channel chan string) {
 	channel = make(chan string)
-	go start(channel)
+	volumeState := &VolumeState{isConnected: false, initialDetection: false}
+	go start(channel, volumeState)
 	return
 }
 
-func start(channel chan string) {
+func start(channel chan string, volumeState *VolumeState) {
 	startDir := detectStartpoint()
-	log.Println("Found new volume: " + startDir)
+	volumeState.setDir(startDir)
 	scanner := newFileScaner(startDir)
-	initialFilesDetected := false
-	notConnectedReported := false
 	for {
 		files, err := scanner.GetNewFiles()
 		if os.IsNotExist(err) {
-			if !notConnectedReported {
-				notConnectedReported = true
-				log.Printf("Volume %s is not connected", startDir)
-			}
+			volumeState.setConnected(false)
 		} else if err != nil {
 			log.Printf("Error while getting new files: %s", err.Error())
 		} else {
-			notConnectedReported = false
-			if !initialFilesDetected {
-				initialFilesDetected = true
-				log.Println("Initial files detected. Fly your machines now.")
-			} else {
-				log.Printf("Found %d new files", len(*files))
+			volumeState.setConnected(true)
+			if volumeState.didInitialDetection() {
+				volumeState.setNewFiles(len(*files))
 				for _, file := range *files {
 					channel <- file
 				}
@@ -41,4 +42,38 @@ func start(channel chan string) {
 		}
 		time.Sleep(3 * time.Second)
 	}
+}
+
+func (v *VolumeState) setDir(dir string) {
+	v.dir = dir
+	log.Println("Found new volume: " + dir)
+	v.setConnected(true)
+}
+
+func (v *VolumeState) setConnected(isConnected bool) {
+	if v.isConnected && !isConnected {
+		log.Printf("Volume %s is not connected", v.dir)
+	} else if !v.isConnected && isConnected {
+		v.forceFilesStatus = true
+		log.Printf("Volume %s was connected", v.dir)
+	}
+	v.isConnected = isConnected
+}
+
+func (v *VolumeState) didInitialDetection() bool {
+	if !v.initialDetection {
+		log.Println("Initial files detected. Fly your machines now.")
+		v.initialDetection = true
+		v.forceFilesStatus = false
+		return false
+	}
+	return true
+}
+
+func (v *VolumeState) setNewFiles(num int) {
+	if num > 0 || v.forceFilesStatus {
+		v.forceFilesStatus = false
+		log.Printf("Found %d new files", num)
+	}
+	v.numNewFiles = num
 }
