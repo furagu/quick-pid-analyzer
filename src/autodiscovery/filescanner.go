@@ -3,7 +3,6 @@ package autodiscovery
 import(
 	"time"
 	"os"
-	"log"
 	"path/filepath"
 	"strings"
 )
@@ -20,13 +19,8 @@ func newFileScaner(root string) *FileScaner {
 }
 
 func (s *FileScaner) GetNewFiles() (newFiles *[]string, err error) {
-	log.Println("Checking for new files")
 	newFiles = &[]string{}
 	err = filepath.Walk(s.root, visit(newFiles, &s.files))
-	if err != nil {
-		return
-	}
-	log.Printf("Found %d new files", len(*newFiles))
 	return
 }
 

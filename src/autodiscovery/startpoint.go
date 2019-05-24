@@ -19,7 +19,6 @@ func detectStartpoint() (path string) {
 	log.Print("Please connect you card...")
 	for {
 		time.Sleep(2 * time.Second)
-		log.Print(".")
 		points, err := getMountPoints()
 		if err != nil {
 			panic(err)
@@ -35,7 +34,6 @@ func detectStartpoint() (path string) {
 			}
 		}
 		if detected {
-			log.Println("")
 			break
 		}
 		mountPoints = newMountPoints
