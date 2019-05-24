@@ -31,12 +31,18 @@ func main() {
 		t.Print()
 		fmt.Println("")
 
+		plots.StepResponseFromTrace(t)
 		p := plots.StepResponseFromTrace(t)
-		x, y := p.Calculate()
+		low, high := p.Calculate()
 
-		fmt.Println(x)
-		fmt.Println(y)
+		fmt.Println("Low\n")
+		for _, x := range low {
+			fmt.Printf("%.12f\t%.12f\n", x[0], x[1])
+		}
 
-		fmt.Println("")
+		fmt.Println("High\n")
+		for _, x := range high {
+			fmt.Printf("%.12f %.12f\n", x[0], x[1])
+		}
 	}
 }

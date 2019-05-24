@@ -8,8 +8,7 @@ import (
 )
 
 type Header struct {
-	Firmware    string // fwType
-	MaxThrottle int    // maxThrottle
+	Firmware string // fwType
 
 	RollP int
 	RollI int
@@ -34,8 +33,7 @@ const sampleDataPath = "sample.csv"
 
 func SampleSession() (*Session, error) {
 	h := &Header{
-		Firmware:    "cleanflight",
-		MaxThrottle: 2000,
+		Firmware: "cleanflight",
 
 		RollP: 42,
 		RollI: 60,
@@ -52,7 +50,6 @@ func SampleSession() (*Session, error) {
 
 	fieldsToLoad := []string{
 		"time (us)",
-		"rcCommand[3]",
 		"axisP[0]", "axisP[1]", "axisP[2]",
 		"gyroADC[0]", "gyroADC[1]", "gyroADC[2]",
 		"gyroData[0]", "gyroData[1]", "gyroData[2]",

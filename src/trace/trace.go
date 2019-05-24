@@ -13,10 +13,9 @@ type Trace struct {
 	PTerm float64
 	Len   int
 
-	Time     []float64
-	Throttle []float64
-	Gyro     []float64
-	P        []float64
+	Time []float64
+	Gyro []float64
+	P    []float64
 }
 
 func TracesFromLogSession(s *bblog.Session) (*Trace, *Trace, *Trace, error) {
@@ -27,13 +26,11 @@ func TracesFromLogSession(s *bblog.Session) (*Trace, *Trace, *Trace, error) {
 	dataPointsTotal := len(s.Values)
 	for _, t := range []*Trace{roll, pitch, yaw} {
 		t.Time = make([]float64, dataPointsTotal, dataPointsTotal)
-		t.Throttle = make([]float64, dataPointsTotal, dataPointsTotal)
 		t.Gyro = make([]float64, dataPointsTotal, dataPointsTotal)
 		t.P = make([]float64, dataPointsTotal, dataPointsTotal)
 	}
 
 	oTime := s.FieldOffset["time (us)"]
-	oThrottle := s.FieldOffset["rcCommand[3]"]
 
 	var oRollGyro, oPitchGyro, oYawGyro int
 	if _, ok := s.FieldOffset["gyroADC[0]"]; ok {
@@ -63,15 +60,6 @@ func TracesFromLogSession(s *bblog.Session) (*Trace, *Trace, *Trace, error) {
 		roll.Time[i] = time
 		pitch.Time[i] = time
 		yaw.Time[i] = time
-
-		throttle, err := strconv.ParseFloat(v[oThrottle], 64)
-		if err != nil {
-			return nil, nil, nil, err
-		}
-		throttle = ((throttle - 1000.) / (float64(s.Header.MaxThrottle) - 1000.)) * 100.
-		roll.Throttle[i] = throttle
-		pitch.Throttle[i] = throttle
-		yaw.Throttle[i] = throttle
 
 		rollGyro, err := strconv.ParseFloat(v[oRollGyro], 64)
 		if err != nil {
@@ -116,7 +104,6 @@ func TracesFromLogSession(s *bblog.Session) (*Trace, *Trace, *Trace, error) {
 func (t *Trace) Print() {
 	fmt.Printf("Trace: %s\nPTerm: %f\n", t.Name, t.PTerm)
 	fmt.Printf("Time: %s\n", utils.FloatsToString(t.Time))
-	fmt.Printf("Throttle: %s\n", utils.FloatsToString(t.Throttle))
 	fmt.Printf("Gyro: %s\n", utils.FloatsToString(t.Gyro))
 	fmt.Printf("P: %s\n", utils.FloatsToString(t.P))
 }
