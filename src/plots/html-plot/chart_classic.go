@@ -17,15 +17,22 @@ func NewClassicChart(name string, cfg ChartConfig) *SvgChart {
 		},
 		graph: chart.Chart{
 			XAxis: chart.XAxis{
-				Name:      cfg.XAxisName,
-				NameStyle: chart.StyleShow(),
-				Style:     chart.StyleShow(),
+				Name: cfg.XAxisName,
+				Style: chart.Style{
+					Show:     true,
+					FontSize: 12,
+				},
+				NameStyle: chart.Style{
+					Show:     true,
+					FontSize: 14,
+				},
 			},
 			YAxis: chart.YAxis{
 				Name: cfg.YAxisName,
 				NameStyle: chart.Style{
 					Show:                true,
 					TextRotationDegrees: 270,
+					FontSize:            14,
 				},
 				Style:    chart.StyleShow(),
 				AxisType: chart.YAxisSecondary,
@@ -42,7 +49,9 @@ func NewClassicChart(name string, cfg ChartConfig) *SvgChart {
 
 	if cfg.ShowLegend {
 		ch.graph.Elements = []chart.Renderable{
-			chart.Legend(&ch.graph),
+			chart.Legend(&ch.graph, chart.Style{
+				FontSize: 16,
+			}),
 		}
 	}
 

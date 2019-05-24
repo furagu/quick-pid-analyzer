@@ -9,7 +9,7 @@ import (
 )
 
 // This viewBox argument provides best fit to make SVG tags responsive
-var defaultViewBox = [4]int{0, 0, 1000, 400}
+var defaultViewBox = [4]int{-5, 0, 1050, 400}
 
 type ChartConfig struct {
 	XAxisName  string
